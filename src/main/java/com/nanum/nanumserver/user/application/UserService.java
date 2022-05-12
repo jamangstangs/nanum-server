@@ -1,5 +1,7 @@
 package com.nanum.nanumserver.user.application;
 
+import com.nanum.nanumserver.config.annotation.DataIntegrityHandler;
+import com.nanum.nanumserver.exception.user.DuplicatedUserException;
 import com.nanum.nanumserver.exception.user.NoSuchUserException;
 import com.nanum.nanumserver.exception.user.NotMatchedPasswordException;
 import com.nanum.nanumserver.user.domain.User;
@@ -21,6 +23,7 @@ public class UserService {
 //    private final FindPasswordValidator findPasswordValidator;
 
     @Transactional
+    @DataIntegrityHandler(DuplicatedUserException.class)
     public Long signUP(SignUpRequest request) {
         String username = request.getUsername();
 
@@ -47,7 +50,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(Long userId, UpdatePasswordRequest passwordRequest) {
+    public void updatePassword(Long userId, UpdatePasswordRequest passwordRequest) throws NotMatchedPasswordException {
         User user = findUserById(userId);
         if (!encoder.isMatch(passwordRequest.getOriginPassword(), user.getPassword())) {
             throw new NotMatchedPasswordException();
@@ -62,7 +65,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUserOfMind(Long userId, DeleteUserRequest deleteUserRequest) {
+    public void deleteUserOfMind(Long userId, DeleteUserRequest deleteUserRequest) throws NotMatchedPasswordException {
         User user = findUserById(userId);
         if (!encoder.isMatch(deleteUserRequest.getPassword(), user.getPassword())) {
             throw new NotMatchedPasswordException();
