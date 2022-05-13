@@ -10,6 +10,8 @@ import com.nanum.nanumserver.user.dto.request.DeleteUserRequest;
 import com.nanum.nanumserver.user.dto.request.SignUpRequest;
 import com.nanum.nanumserver.user.dto.request.UpdatePasswordRequest;
 import com.nanum.nanumserver.utils.password.Encoder;
+import com.nanum.nanumserver.verification.application.password.FindPasswordValidator;
+import com.nanum.nanumserver.verification.application.signup.SignUpValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,18 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final Encoder encoder;
-//    private final SignUpValidator signUpValidator;
-//    private final FindPasswordValidator findPasswordValidator;
+    private final SignUpValidator signUpValidator;
+    private final FindPasswordValidator findPasswordValidator;
 
     @Transactional
     @DataIntegrityHandler(DuplicatedUserException.class)
     public Long signUP(SignUpRequest request) {
         String username = request.getUsername();
 
-        // Verigication 로직 여기에 추가해야한다.
-        // 1. 중복 회원 검증
-        // 2. email parser로 학교 이메일 검증
-        // 3. signUpValidator 검증
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicatedUserException();
+        }
+
+        if(!EmailDo)
 
         User user = new User(username, encoder.hashPassword(request.getPassword()));
         return userRepository.save(user).getId();
